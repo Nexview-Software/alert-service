@@ -65,24 +65,45 @@ xmpp.on('stanza', async (stanza) => {
                     coords.push([ coords[0][0], coords[0][1] ]);
                     const metadataArr = pol.children[0].match(/(?<=\n\n\d+\n\n.+\n\n.+\n\n.+\n\n\/).+?(?=[\/])/sg)[0].split('.');
                     const dateArr = metadataArr[6].split('-');
-                    objData.coordinates = coords;
-                    objData.metadata = {
-                        productClass: metadataArr[0],
-                        action: metadataArr[1],
-                        officeID: metadataArr[2],
-                        phenomena: metadataArr[3],
-                        significance: metadataArr[4],
-                        eventTrackingNumber: metadataArr[5],
-                        eventStartTime: dateArr[0],
-                        eventEndTime: dateArr[1]
-                    };
                     const messageParams = {
                         DelaySeconds: 0,
                         MessageAttributes: {
-                            AlertData: {
+                            Coordinates: {
                                 DataType: 'String',
-                                StringValue: JSON.stringify(objData)
-                            }
+                                StringValue: JSON.stringify(coords)
+                            },
+                            ProductClass: {
+                                DataType: 'String',
+                                StringValue: metadataArr[0]
+                            },
+                            Action: {
+                                DataType: 'String',
+                                StringValue: metadataArr[1]
+                            },
+                            OfficeID: {
+                                DataType: 'String',
+                                StringValue: metadataArr[2]
+                            },
+                            Phenomena: {
+                                DataType: 'String',
+                                StringValue: metadataArr[3]
+                            },
+                            Significance: {
+                                DataType: 'String',
+                                StringValue: metadataArr[4]
+                            },
+                            EventTrackingNumber: {
+                                DataType: 'String',
+                                StringValue: metadataArr[5]
+                            },
+                            EventStartTime: {
+                                DataType: 'String',
+                                StringValue: dateArr[0]
+                            },
+                            EventEndTime: {
+                                DataType: 'String',
+                                StringValue: dateArr[1]
+                            },
                         },
                         MessageBody: pol.children[0],
                         QueueUrl
