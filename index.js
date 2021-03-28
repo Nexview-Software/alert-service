@@ -84,7 +84,7 @@ xmpp.on('stanza', async (stanza) => {
                                 StringValue: JSON.stringify(objData)
                             }
                         },
-                        MessageBody: 'NWS Alert Data',
+                        MessageBody: pol.children[0],
                         QueueUrl
                     };
                     sqs.sendMessage(messageParams, (err, data) => {
