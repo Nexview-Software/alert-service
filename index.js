@@ -1,9 +1,9 @@
 const _ = require('lodash');
 const AWS = require('aws-sdk');
 const { client, xml } = require('@xmpp/client');
-const { username, password, queueUrl, region } = require('./config');
+const { username, password, queueUrl: QueueUrl } = require('./config');
 
-AWS.config.update({ region });
+AWS.config.loadFromPath('./credentials.json');
 
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
 
@@ -85,7 +85,7 @@ xmpp.on('stanza', async (stanza) => {
                             }
                         },
                         MessageBody: 'NWS Alert Data',
-                        QueueUrl: queueUrl
+                        QueueUrl
                     };
                     sqs.sendMessage(messageParams, (err, data) => {
                         if (err) {
