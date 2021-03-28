@@ -1,0 +1,15 @@
+{
+  "name": "alert-service",
+  "version": "1.0.0",
+  "description": "Process xmpp messages in realtime from NWS endpoints",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alex Neises",
+  "license": "ISC",
+  "dependencies": {
+    "@xmpp/client": "^0.12.0",
+    "lodash": "^4.17.21"
+  }
+}
