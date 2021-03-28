@@ -1,0 +1,13 @@
+[Unit]
+Description=alert-service - process nws alerts in realtime
+Documentation=https://github.com/Nexview-Software/alert-service
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/usr/bin/node /home/ubuntu/alert-service/index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
