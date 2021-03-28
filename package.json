@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@xmpp/client": "^0.12.0",
+    "aws-sdk": "^2.874.0",
     "lodash": "^4.17.21"
   }
 }

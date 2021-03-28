@@ -1,6 +1,11 @@
 const _ = require('lodash');
+const AWS = require('aws-sdk');
 const { client, xml } = require('@xmpp/client');
-const { username, password } = require('./config');
+const { username, password, queueUrl, region } = require('./config');
+
+AWS.config.update({ region });
+
+const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
 
 const xmpp = client({
     service: 'xmpps://nwws-oi.weather.gov:5223',
@@ -42,6 +47,7 @@ xmpp.on('stanza', async (stanza) => {
                 case 'FFW':
                 case 'SVR':
                 case 'TOR':
+                    const objData = {};
                     const pol = stanza.children.find(x => { return x.name === 'x'; });
                     const coords = pol.children[0].match(/(?<=LAT\.{3}LON\s).+?(?=[^\d\s])/sg)[0]
                         .replace(/\r?\n|\r/g, ' ')
@@ -57,8 +63,37 @@ xmpp.on('stanza', async (stanza) => {
                             return result;
                         }, []);
                     coords.push([ coords[0][0], coords[0][1] ]);
-
-                    console.log(pol);
+                    const metadataArr = pol.children[0].match(/(?<=\n\n\d+\n\n.+\n\n.+\n\n.+\n\n\/).+?(?=[\/])/sg)[0].split('.');
+                    const dateArr = metadataArr[6].split('-');
+                    objData.coordinates = coords;
+                    objData.metadata = {
+                        productClass: metadataArr[0],
+                        action: metadataArr[1],
+                        officeID: metadataArr[2],
+                        phenomena: metadataArr[3],
+                        significance: metadataArr[4],
+                        eventTrackingNumber: metadataArr[5],
+                        eventStartTime: dateArr[0],
+                        eventEndTime: dateArr[1]
+                    };
+                    const messageParams = {
+                        DelaySeconds: 0,
+                        MessageAttributes: {
+                            AlertData: {
+                                DataType: 'String',
+                                StringValue: JSON.stringify(objData)
+                            }
+                        },
+                        MessageBody: 'NWS Alert Data',
+                        QueueUrl: queueUrl
+                    };
+                    sqs.sendMessage(messageParams, (err, data) => {
+                        if (err) {
+                            console.error('Error', err);
+                        } else {
+                            console.log('Success', data.messageId);
+                        }
+                    });
                     break;
                 default:
                     break;
