@@ -1,9 +1,9 @@
 const _ = require('lodash');
 const AWS = require('aws-sdk');
 const { client, xml } = require('@xmpp/client');
-const { username, password, queueUrl: QueueUrl } = require('./config');
+const { username, password, queueUrl: QueueUrl } = require('/home/ubuntu/alert-service/config');
 
-AWS.config.loadFromPath('./credentials.json');
+AWS.config.loadFromPath('/home/ubuntu/alert-service/credentials.json');
 
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
 
