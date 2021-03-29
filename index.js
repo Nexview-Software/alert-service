@@ -46,6 +46,7 @@ xmpp.on('stanza', async (stanza) => {
             switch (stanzaAttr.attrs.awipsid.substr(0, 3)) {
                 case 'FFW':
                 case 'SVR':
+                case 'SMW':
                 case 'TOR':
                     const objData = {};
                     const pol = stanza.children.find(x => { return x.name === 'x'; });
