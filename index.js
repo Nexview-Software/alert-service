@@ -1,7 +1,14 @@
 const _ = require('lodash');
+const fs = require('fs');
 const AWS = require('aws-sdk');
 const { client, xml } = require('@xmpp/client');
 const { username, password, queueUrl: QueueUrl } = require('/home/ubuntu/alert-service/config');
+const { Console } = require('console');
+
+const stdout = fs.createWriteStream('/var/log/alert-service/stdout.log');
+const stderr = fs.createWriteStream('/var/log/alert-service/stderr.log', { flags: 'a' });
+
+const logger = new Console({ stdout, stderr });
 
 AWS.config.loadFromPath('/home/ubuntu/alert-service/credentials.json');
 
@@ -14,11 +21,11 @@ const xmpp = client({
 });
 
 xmpp.on('error', (err) => {
-    console.error('x', err.toString());
+    logger.error('x', err.toString());
 });
 
 xmpp.on('offline', () => {
-    console.log('-', 'offline');
+    logger.log('-', 'offline');
 });
 
 xmpp.on('stanza', async (stanza) => {
@@ -33,9 +40,9 @@ xmpp.on('stanza', async (stanza) => {
                         type: 'result'
                     })
                 );
-                console.log('Sending response to ping...');
+                logger.log('Sending response to ping...');
                 await xmpp.send(pong);
-                console.log('Pong!');
+                logger.log('Pong!');
             }
         });
     }
@@ -111,9 +118,9 @@ xmpp.on('stanza', async (stanza) => {
                     };
                     sqs.sendMessage(messageParams, (err, data) => {
                         if (err) {
-                            console.error('Error', err);
+                            logger.error('Error', err);
                         } else {
-                            console.log('Success', data.messageId);
+                            logger.log('Success', data.messageId);
                         }
                     });
                     break;
@@ -125,7 +132,7 @@ xmpp.on('stanza', async (stanza) => {
 });
 
 xmpp.on('online', async (address) => {
-    console.log('o', 'online as', address.toString());
+    logger.log('o', 'online as', address.toString());
 
     const message = (
         xml('presence', {
@@ -136,4 +143,4 @@ xmpp.on('online', async (address) => {
     await xmpp.send(message);
 });
 
-xmpp.start().catch(console.error);
+xmpp.start().catch(logger.error);
